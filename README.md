@@ -165,17 +165,19 @@ VITE_REQUESTER_CANISTER_ID=
 VITE_LOG_CANISTER_ID=
 ```
 
-📡 API Endpoints
-Public
-GET /health
-GET /providers
-GET /reputation/{provider_id}
-GET /logs
-GET /metrics
+## 📡 API Endpoints
 
-Actions
-POST /search – mulai pencarian data
-POST /purchase (planned)
+**Public:**
+- `GET /health`
+- `GET /providers`
+- `GET /reputation/{provider_id}`
+- `GET /logs`
+- `GET /metrics`
+
+**Actions:**
+- `POST /search` – mulai pencarian data
+- `POST /purchase` *(planned)*
+
 
 🚀 Deployment
 ```
