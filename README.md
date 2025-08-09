@@ -108,12 +108,16 @@ npm init -y
 npm i express socket.io pg ioredis dotenv
 npm i -D typescript ts-node-dev @types/express @types/node
 npx tsc --init
+```
 
 package.json (script):
+```
 "scripts": {
   "dev": "ts-node-dev --respawn --transpile-only src/server.ts"
 }
+```
 src/server.ts (starter):
+```
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
@@ -131,9 +135,11 @@ io.on("connection", s => {
 });
 
 server.listen(3000, () => console.log("API running on :3000"));
+```
 
 📦 Environment Variables
 Buat file .env di root proyek dengan format seperti .env.example:
+```
 APP_ENV=development
 PORT=8000
 LOG_LEVEL=info
@@ -157,6 +163,7 @@ FETCH_AGENT_PRIVATE_KEY_PATH=./fetch/private_keys.json
 VITE_DFX_NETWORK=local
 VITE_REQUESTER_CANISTER_ID=
 VITE_LOG_CANISTER_ID=
+```
 
 📡 API Endpoints
 Public
@@ -171,12 +178,15 @@ POST /search – mulai pencarian data
 POST /purchase (planned)
 
 🚀 Deployment
+```
 dfx start --background
 dfx deploy
 uvicorn app.main:app --reload --port 8000
 npm run dev
-
+```
 Production
+```
 export DFX_NETWORK=ic
 dfx deploy --network ic
 npm run build
+```
