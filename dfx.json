@@ -1,0 +1,29 @@
+{
+  "canisters": {
+    "genesisnet_backend_backend": {
+      "build": "npx azle genesisnet_backend_backend",
+      "candid": "src/genesisnet_backend_backend/genesisnet_backend_backend.did",
+      "gzip": true,
+      "main": "src/genesisnet_backend_backend/src/index.ts",
+      "tech_stack": {
+        "cdk": {
+          "azle": {}
+        },
+        "language": {
+          "javascript": {},
+          "typescript": {}
+        }
+      },
+      "type": "custom",
+      "wasm": ".azle/genesisnet_backend_backend/genesisnet_backend_backend.wasm"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

@@ -1,0 +1,16 @@
+# dfx / ICP
+.dfx/
+.canister_ids.json
+
+# Node / Azle
+node_modules/
+dist/
+
+# Python (kalau ada agent contoh di repo sama)
+__pycache__/
+venv/
+*.pyc
+
+# OS/Editor
+.DS_Store
+.vscode/
