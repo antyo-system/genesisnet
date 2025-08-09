@@ -167,16 +167,18 @@ VITE_LOG_CANISTER_ID=
 
 ## 📡 API Endpoints
 
-**Public:**
-- `GET /health`
-- `GET /providers`
-- `GET /reputation/{provider_id}`
-- `GET /logs`
-- `GET /metrics`
+**Core APIs**
+- `GET /api/dashboard/metrics` — Current metrics
+- `GET /api/dashboard/logs` — Activity logs
+- `GET /api/network/topology` — Network nodes
+- `POST /api/data/search` — Search providers
+- `POST /api/network/scan` — Network discovery
 
-**Actions:**
-- `POST /search` – mulai pencarian data
-- `POST /purchase` *(planned)*
+**WebSocket Events**
+- `metrics_update` — Real-time metrics
+- `activity_log` — New log entries
+- `network_update` — Topology changes
+- `search_results` — Search results
 
 
 🚀 Deployment
