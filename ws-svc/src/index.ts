@@ -1,6 +1,7 @@
 import http from "node:http";
+import { env } from "@genesisnet/env";
 
-const PORT = Number(process.env.PORT) || 3005;
+const PORT = env.WS_PORT;
 
 const server = http.createServer((req, res) => {
   if (req.method === "GET" && req.url === "/health") {
