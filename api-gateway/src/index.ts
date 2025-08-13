@@ -2,13 +2,25 @@
 import express from "express";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import swaggerUi from "swagger-ui-express";
+import cors from "cors";
+import helmet from "helmet";
+import morgan from "morgan";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { env } from "@genesisnet/env";
+import { logger } from "./logger";
 
 const app = express();
 const PORT = env.API_GATEWAY_PORT;
+
+app.use(cors());
+app.use(helmet());
+app.use(
+  morgan("combined", {
+    stream: { write: (message) => logger.info(message.trim()) },
+  })
+);
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true });
@@ -45,6 +57,6 @@ app.use("/api/:service", (req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`api-gateway service listening on port ${PORT}`);
+  logger.info(`api-gateway service listening on port ${PORT}`);
 });
 
