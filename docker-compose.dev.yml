@@ -1,0 +1,128 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: genesisnet
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  api-gateway:
+    image: node:18
+    working_dir: /app
+    volumes:
+      - ./api-gateway:/app
+    command: sh -c "npm install && npx tsc && node dist/index.js"
+    environment:
+      DB_URL: postgres://postgres:postgres@postgres:5432/genesisnet
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "3000:3000"
+
+  metrics-svc:
+    image: node:18
+    working_dir: /app
+    volumes:
+      - ./metrics-svc:/app
+    command: sh -c "npm install && npx tsc && node dist/index.js"
+    environment:
+      DB_URL: postgres://postgres:postgres@postgres:5432/genesisnet
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "3001:3000"
+
+  network-svc:
+    image: node:18
+    working_dir: /app
+    volumes:
+      - ./network-svc:/app
+    command: sh -c "npm install && npx tsc && node dist/index.js"
+    environment:
+      DB_URL: postgres://postgres:postgres@postgres:5432/genesisnet
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "3002:3000"
+
+  search-svc:
+    image: node:18
+    working_dir: /app
+    volumes:
+      - ./search-svc:/app
+    command: sh -c "npm install && npx tsc && node dist/index.js"
+    environment:
+      DB_URL: postgres://postgres:postgres@postgres:5432/genesisnet
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "3003:3000"
+
+  tx-svc:
+    image: node:18
+    working_dir: /app
+    volumes:
+      - ./tx-svc:/app
+    command: sh -c "npm install && npx tsc && node dist/index.js"
+    environment:
+      DB_URL: postgres://postgres:postgres@postgres:5432/genesisnet
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "3004:3000"
+
+  ws-svc:
+    image: node:18
+    working_dir: /app
+    volumes:
+      - ./ws-svc:/app
+    command: sh -c "npm install && npx tsc && node dist/index.js"
+    environment:
+      DB_URL: postgres://postgres:postgres@postgres:5432/genesisnet
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "3005:3000"
+
+  blockchain-svc:
+    image: node:18
+    working_dir: /app
+    volumes:
+      - ./blockchain-svc:/app
+    command: sh -c "npm install && npx tsc && node dist/index.js"
+    environment:
+      DB_URL: postgres://postgres:postgres@postgres:5432/genesisnet
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "3006:3000"
+
+volumes:
+  pgdata:

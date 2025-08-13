@@ -8,15 +8,11 @@
     "npm": ">=7.0.0"
   },
   "scripts": {
-
     "test": "echo \"No tests specified\"",
     "lint": "eslint . --ext .ts,.tsx --max-warnings=0",
     "format": "prettier --write .",
     "prepare": "husky install",
     "lint:fix": "eslint . --ext .ts,.tsx --fix"
-
-    "test": "echo \"No tests specified\""
-
   },
   "workspaces": [
     "api-gateway",
@@ -27,7 +23,6 @@
     "ws-svc",
     "blockchain-svc",
     "packages/*"
-
   ],
   "lint-staged": {
     "*.{ts,js,json,md}": [
@@ -43,7 +38,4 @@
     "prettier": "^3.0.0",
     "eslint-config-prettier": "^9.0.0"
   }
-
-  ]
-
 }
