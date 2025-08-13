@@ -10,6 +10,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { env } from "@genesisnet/env";
 import { logger } from "./logger";
+import { activityLogger, errorLogger } from "@genesisnet/activity-log";
 
 const app = express();
 const PORT = env.API_GATEWAY_PORT;
@@ -21,6 +22,7 @@ app.use(
     stream: { write: (message) => logger.info(message.trim()) },
   })
 );
+app.use(activityLogger);
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true });
@@ -55,6 +57,8 @@ app.use("/api/:service", (req, res, next) => {
     pathRewrite: { [`^/api/${req.params.service}`]: "" },
   })(req, res, next);
 });
+
+app.use(errorLogger);
 
 app.listen(PORT, () => {
   logger.info(`api-gateway service listening on port ${PORT}`);
