@@ -23,7 +23,6 @@
     "ws-svc",
     "blockchain-svc",
     "packages/*"
-
   ],
   "lint-staged": {
     "*.{ts,js,json,md}": [
