@@ -1,0 +1,9 @@
+packages:
+  - 'api-gateway'
+  - 'metrics-svc'
+  - 'search-svc'
+  - 'network-svc'
+  - 'tx-svc'
+  - 'ws-svc'
+  - 'blockchain-svc'
+  - 'packages/*'
