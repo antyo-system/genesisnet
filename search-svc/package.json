@@ -2,5 +2,8 @@
   "name": "@genesisnet/search-svc",
   "version": "0.0.1",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@genesisnet/env": "0.0.1"
+  }
 }

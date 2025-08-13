@@ -5,9 +5,10 @@ import swaggerUi from "swagger-ui-express";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { env } from "@genesisnet/env";
 
 const app = express();
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = env.API_GATEWAY_PORT;
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true });
@@ -44,25 +45,6 @@ app.use("/api/:service", (req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`api-gateway service listening on port ${PORT}`);
-});
-=======
-import http from "node:http";
-
-const PORT = Number(process.env.PORT) || 3000;
-
-const server = http.createServer((req, res) => {
-  if (req.method === "GET" && req.url === "/health") {
-    res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ ok: true }));
-    return;
-  }
-
-  res.statusCode = 404;
-  res.end();
-});
-
-server.listen(PORT, () => {
   console.log(`api-gateway service listening on port ${PORT}`);
 });
 
