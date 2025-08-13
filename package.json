@@ -12,7 +12,10 @@
     "lint": "eslint . --ext .ts,.tsx --max-warnings=0",
     "format": "prettier --write .",
     "prepare": "husky install",
-    "lint:fix": "eslint . --ext .ts,.tsx --fix"
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "db:migrate": "knex --knexfile packages/db/knexfile.cjs migrate:latest",
+    "db:reset": "knex --knexfile packages/db/knexfile.cjs migrate:rollback --all && npm run db:migrate",
+    "db:seed": "knex --knexfile packages/db/knexfile.cjs seed:run"
   },
   "workspaces": [
     "api-gateway",
@@ -37,6 +40,8 @@
     "typescript-eslint": "^8.0.0",
     "prettier": "^3.0.0",
     "eslint-config-prettier": "^9.0.0",
-    "@types/node": "^20.0.0"
+    "@types/node": "^20.0.0",
+    "knex": "^2.5.1",
+    "pg": "^8.11.1"
   }
 }
