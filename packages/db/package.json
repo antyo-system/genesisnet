@@ -1,0 +1,20 @@
+{
+  "name": "@genesisnet/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "async-retry": "^1.3.3",
+    "pg": "^8.11.1",
+    "knex": "^2.5.1"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.10.0"
+  }
+}
