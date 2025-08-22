@@ -1,16 +1,29 @@
-# dfx / ICP
-.dfx/
-.canister_ids.json
-
-# Node / Azle
+# Node.js / TypeScript
 node_modules/
 dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Python (kalau ada agent contoh di repo sama)
+# Python (agents)
 __pycache__/
-venv/
 *.pyc
+.venv/
+venv/
+.env/
 
-# OS/Editor
-.DS_Store
+# ICP / Dfinity
+.dfx/
+*.wasm
+canister_ids.json
+
+# Build / Cache
+*.log
+*.lock
+coverage/
+*.sqlite
+
+# Editor / OS
 .vscode/
+.DS_Store
+Thumbs.db
