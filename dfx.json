@@ -1,29 +1,27 @@
 {
+  "version": 1,
   "canisters": {
     "genesisnet_backend_backend": {
-      "build": "npx azle genesisnet_backend_backend",
-      "candid": "src/genesisnet_backend_backend/genesisnet_backend_backend.did",
-      "gzip": true,
-      "main": "src/genesisnet_backend_backend/src/index.ts",
-      "tech_stack": {
-        "cdk": {
-          "azle": {}
-        },
-        "language": {
-          "javascript": {},
-          "typescript": {}
-        }
-      },
       "type": "custom",
-      "wasm": ".azle/genesisnet_backend_backend/genesisnet_backend_backend.wasm"
+      "main": "src/genesisnet_backend_backend/src/index.ts",
+      "candid": "src/genesisnet_backend_backend/genesisnet_backend_backend.did",
+      "build": "npx azle genesisnet_backend_backend",
+      "wasm": ".azle/genesisnet_backend_backend/genesisnet_backend_backend.wasm",
+      "gzip": true,
+      "tech_stack": {
+        "cdk": { "azle": {} },
+        "language": { "javascript": {}, "typescript": {} }
+      }
+    },
+    "ledger": {
+      "type": "motoko",
+      "main": "icp/src/ledger/lib.mo",
+      "candid": "icp/src/ledger/candid.did"
     }
   },
-  "defaults": {
-    "build": {
-      "args": "",
-      "packtool": ""
-    }
-  },
+  "defaults": { "build": { "args": "", "packtool": "" } },
   "output_env_file": ".env",
-  "version": 1
+  "networks": {
+    "local": { "bind": "127.0.0.1:8000", "type": "ephemeral" }
+  }
 }
