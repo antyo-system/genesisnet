@@ -194,3 +194,6 @@ export DFX_NETWORK=ic
 dfx deploy --network ic
 npm run build
 ```
+## 📑 Documentation
+- [Pitch Deck](./docs/PITCH_DECK/PITCH_DECK.md)
+
