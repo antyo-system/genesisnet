@@ -6,10 +6,9 @@ import Array "mo:base/Array";
 import Iter "mo:base/Iter";
 import HashMap "mo:base/HashMap";
 import Text "mo:base/Text";
-import Buffer "mo:base/Buffer";
 import Option "mo:base/Option";
 
-actor {
+persistent actor {
   // ===== Types =====
   public type TxInput = {
     provider_id : Text;
@@ -27,24 +26,23 @@ actor {
     timestamp   : Int;
   };
 
-  // ===== Stable State =====
+  // ===== Stable state (persist across upgrades) =====
   stable var txCounter : Nat = 0;
   stable var txStore   : [Transaction] = [];
+  // simpan reputasi sebagai pasangan (key,value) supaya bisa distabilkan
+  stable var repEntries : [(Text, Nat)] = [] : [(Text, Nat)];
 
-  // reputasi disimpan di HashMap (key: provider_id)
-  stable var repEntries : [(Text, Nat)] = [];
+  // runtime map (tidak stable), direkonstruksi dari repEntries
+  transient let repMap = HashMap.HashMap<Text, Nat>(32, Text.equal, Text.hash);
 
-  // non-stable runtime map (direkonstruksi dari repEntries)
-  let repMap = HashMap.HashMap<Text, Nat>(16, Text.equal, Text.hash);
-
-  // Rekonstruksi repMap dari stable entries saat init
-  system func postupgrade() { /* nothing */ };
+  // simpan map -> array sebelum upgrade
   system func preupgrade() {
-    // simpan repMap -> repEntries
     repEntries := Iter.toArray(repMap.entries());
   };
-  system func init() {
-    for ((k, v) in repEntries.vals()) { repMap.put(k, v); };
+
+  // rekonstruksi map dari array setelah upgrade / deploy berikutnya
+  system func postupgrade() {
+    for ((k, v) in repEntries.vals()) { repMap.put(k, v) };
   };
 
   // ===== Helpers =====
@@ -52,10 +50,20 @@ actor {
     txStore := Array.append<Transaction>(txStore, [t]);
   };
 
-  // ===== Public Methods =====
+  // terapkan delta bertanda ke Nat (diklamp ke >= 0)
+  private func applyDelta(cur : Nat, delta : Int) : Nat {
+    if (delta >= 0) {
+      cur + Nat64.fromInt(delta)
+    } else {
+      let dec = Nat64.fromInt(-delta);
+      if (cur <= dec) 0 else cur - dec
+    }
+  };
 
-  // -- LOG TRANSACTION --
-  public shared({ caller }) func log_transaction(input : TxInput) : async Nat {
+  // ===== Public methods =====
+
+  // catat transaksi + auto +1 reputasi provider
+  public shared func log_transaction(input : TxInput) : async Nat {
     txCounter += 1;
     let now = Time.now();
 
@@ -70,50 +78,47 @@ actor {
 
     pushTx(tx);
 
-    // Naikkan reputasi provider +1 untuk setiap transaksi sukses (kamu bisa ganti logikanya).
     let current = Option.get(repMap.get(input.provider_id), 0);
     let newScore = current + 1;
     repMap.put(input.provider_id, newScore);
 
-    return txCounter;
+    txCounter
   };
 
-  // -- GET ALL TRANSACTIONS (query) --
+  // ambil semua transaksi (query)
   public query func get_transactions() : async [Transaction] {
     txStore
   };
 
-  // -- GET LOGS SINCE ID (query) --
+  // ambil transaksi dengan id > sinceId (query)
   public query func get_logs_since(sinceId : Nat) : async [Transaction] {
     Array.filter<Transaction>(txStore, func (t) { t.id > sinceId })
   };
 
-  // -- GET REPUTATION (query) --
+  // ambil reputasi provider (query)
   public query func get_reputation(provider_id : Text) : async Nat {
     Option.get(repMap.get(provider_id), 0)
   };
 
-  // -- UPDATE REPUTATION (delta + / -) --
-  public shared({ caller }) func update_reputation(provider_id : Text, delta : Int) : async Nat {
-    let cur : Int = Int.fromNat(Option.get(repMap.get(provider_id), 0));
-    let nxt : Int = cur + delta;
-    let clamped : Nat = if (nxt <= 0) 0 else Int.abs(nxt);
-    repMap.put(provider_id, clamped);
-    clamped
+  // ubah reputasi dengan delta (+/-)
+  public shared func update_reputation(provider_id : Text, delta : Int) : async Nat {
+    let cur  = Option.get(repMap.get(provider_id), 0);
+    let next = applyDelta(cur, delta);
+    repMap.put(provider_id, next);
+    next
   };
 
-  // -- SET REPUTATION (absolute) --
-  public shared({ caller }) func set_reputation(provider_id : Text, new_score : Nat) : async Nat {
+  // set reputasi absolut
+  public shared func set_reputation(provider_id : Text, new_score : Nat) : async Nat {
     repMap.put(provider_id, new_score);
     new_score
   };
 
-  // -- DEV ONLY: RESET (local) --
-  public shared({ caller }) func reset_all() : async () {
+  // DEV: reset semua data (pakai di local saja)
+  public shared func reset_all() : async () {
     txStore := [];
     txCounter := 0;
-    // clear map
-    let ks = Iter.toArray(repMap.keys());
-    for (k in ks.vals()) { ignore repMap.remove(k); };
+    let keys = Iter.toArray(repMap.keys());
+    for (k in keys.vals()) { ignore repMap.remove(k) };
   };
 }
