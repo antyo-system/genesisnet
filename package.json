@@ -9,13 +9,6 @@
     "npm": ">=9.0.0"
   },
   "workspaces": [
-    "api-gateway",
-    "metrics-svc",
-    "search-svc",
-    "network-svc",
-    "tx-svc",
-    "ws-svc",
-    "blockchain-svc",
     "packages/*"
   ],
   "scripts": {
