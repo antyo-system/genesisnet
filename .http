@@ -1,0 +1,36 @@
+### Health check blockchain
+GET http://localhost:4003/health
+
+### Balance check
+GET http://localhost:4003/blockchain/wallet/user_123/balance
+
+### Send TX
+POST http://localhost:4003/blockchain/tx/send
+Content-Type: application/json
+
+{
+  "from": "user_123",
+  "to": "provider_456",
+  "amount": 10
+}
+
+### Health check tx-service
+GET http://localhost:4002/health
+
+### Initiate TX
+POST http://localhost:4002/tx/initiate
+Content-Type: application/json
+
+{
+  "buyer_id": "user_123",
+  "seller_id": "provider_456",
+  "amount": 3.5,
+  "currency": "ICP",
+  "memo": "test purchase"
+}
+
+### Get TX status
+GET http://localhost:4002/tx/TX_123/status
+
+### Get TX status
+GET http://localhost:4002/tx/TX_c5428a2c-6256-4d72-acd9-a582a3dd0360/status
