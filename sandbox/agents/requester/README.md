@@ -1,6 +1,7 @@
 # GenesisNet Requester Agent
 
 Agent ini adalah **Requester** untuk GenesisNet.
+
 - Terima natural language via Fetch.ai Chat Protocol
 - Parse intent (metrics, logs, topology, scan, search)
 - Forward ke backend (`Node.js + Express + PostgreSQL + Redis`)
@@ -12,3 +13,4 @@ Agent ini adalah **Requester** untuk GenesisNet.
 cd agents/requester
 pip install -r requirements.txt
 python agent.py
+```

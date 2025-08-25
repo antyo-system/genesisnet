@@ -3,6 +3,7 @@
 Terima `DataRequest` via uAgents → panggil **Backend/ICP** → balas `DataResponse`.
 
 ## Quickstart
+
 ```bash
 cd agents/provider
 pip install -r requirements.txt
@@ -36,3 +37,4 @@ ICP_BASE_URL=http://127.0.0.1:4943
 - Butuh **Python 3.10+**
 - Jangan commit `.env` → pastikan `**/.env` ada di `.gitignore`
 - Kalau pakai schema/protocol bersama, simpan di `agents/protocols.py`
+```

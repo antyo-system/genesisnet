@@ -6,13 +6,7 @@ import prettier from 'eslint-config-prettier';
 export default [
   // ignore patterns
   {
-    ignores: [
-      'node_modules',
-      'dist',
-      '.dfx',
-      '**/*.wasm',
-      '**/*.min.js'
-    ]
+    ignores: ['sandbox/**', 'infra/**', 'node_modules', 'dist', '.dfx', '**/*.wasm', '**/*.min.js'],
   },
 
   // base JS rules
@@ -29,11 +23,11 @@ export default [
     rules: {
       'no-unused-vars': 'off', // handled by TS
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-      'no-console': 'off'
+      'no-console': 'off',
     },
     languageOptions: {
       ecmaVersion: 'latest',
-      sourceType: 'module'
-    }
-  }
+      sourceType: 'module',
+    },
+  },
 ];

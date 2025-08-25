@@ -42,16 +42,9 @@ canister_ids.json
 
 # --- DB / cache / coverage ---
 *.sqlite
-*.db
-coverage/
-.cache/
-*.log
 
-# --- Husky ---
-.husky/_/
 
-# --- Editors / OS ---
-.vscode/
+q
 .idea/
 .DS_Store
 Thumbs.db
