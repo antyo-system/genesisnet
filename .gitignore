@@ -8,13 +8,20 @@ node_modules/
 dist/
 build/
 out/
+*.tsbuildinfo
+.eslintcache
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
 .turbo/
 .next/
 .vercel/
+*.tgz
+logs/
 
 # --- Python (agents) ---
 __pycache__/
@@ -39,6 +46,9 @@ canister_ids.json
 coverage/
 .cache/
 *.log
+
+# --- Husky ---
+.husky/_/
 
 # --- Editors / OS ---
 .vscode/
