@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  api-gateway:
+    image: node:20-alpine
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - /workspace/node_modules
+      - /workspace/packages/svc-api-gateway/node_modules
+    env_file:
+      - .env
+    command: sh -c "npm i && npm run -w @genesisnet/svc-api-gateway dev"
+    ports:
+      - "${API_GATEWAY_PORT:-3000}:3000"

@@ -12,6 +12,8 @@
     "packages/*"
   ],
   "scripts": {
+    "dev:gateway": "npm run -w @genesisnet/svc-api-gateway dev",
+    "build:gateway": "npm run -w @genesisnet/svc-api-gateway build",
     "dev": "npm run -ws --if-present dev",
     "build": "npm run -ws --if-present build",
     "start": "npm run -ws --if-present start",
