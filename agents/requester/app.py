@@ -31,7 +31,7 @@ def search(body: SearchRequest):
 
 @app.post("/purchase")
 def purchase(payload: dict):
-    # TODO: kirim purchase via uAgents; contoh alur lengkap:
+    # TODO: kirim purchase via uAgents; mock alur:
     processing_event = {
         "type": "TX_PROCESSING",
         "payload": {
@@ -44,15 +44,24 @@ def purchase(payload: dict):
     }
     requests.post(f"{GATEWAY}/agents/events", json=processing_event)
 
-    tx_event = {
-        "type": "TX_SUCCESS",
-        "payload": {
-            "tx_id": payload["tx_id"],
-            "offer_id": payload["offer_id"],
-            "provider_id": "prov-1",
-            "amount": 3.1,
-            "tx_hash": "0xDUMMY",
-        },
-    }
+    if payload.get("fail"):
+        tx_event = {
+            "type": "TX_FAILED",
+            "payload": {
+                "offer_id": payload["offer_id"],
+                "reason": "mock failure",
+            },
+        }
+    else:
+        tx_event = {
+            "type": "TX_SUCCESS",
+            "payload": {
+                "tx_id": payload["tx_id"],
+                "offer_id": payload["offer_id"],
+                "provider_id": "prov-1",
+                "amount": 3.1,
+                "tx_hash": "0xDUMMY",
+            },
+        }
     requests.post(f"{GATEWAY}/agents/events", json=tx_event)
     return {"status": "ok"}

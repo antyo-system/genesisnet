@@ -21,4 +21,16 @@ r.post('/initiate', async (req, res) => {
   res.json({ tx_id: txId, status: 'PENDING' });
 });
 
+r.get('/status', async (req, res) => {
+  const { tx_id } = req.query as { tx_id?: string };
+  if (!tx_id) {
+    return res.status(400).json({ error: 'missing_tx_id' });
+  }
+  const { rows } = await pool.query('SELECT status FROM transactions WHERE tx_id=$1', [tx_id]);
+  if (!rows.length) {
+    return res.status(404).json({ error: 'not_found' });
+  }
+  res.json({ tx_id, status: rows[0].status });
+});
+
 export default r;
