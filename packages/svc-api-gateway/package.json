@@ -14,7 +14,9 @@
   "dependencies": {
     "@genesisnet/env": "^0.1.0",
     "express": "^4.19.2",
-    "@genesisnet/common": "^0.1.0"
+    "@genesisnet/common": "^0.1.0",
+    "cors": "^2.8.5",
+    "http-proxy-middleware": "^2.0.6"
   },
   "devDependencies": {
     "@types/express": "^4.17.23",
