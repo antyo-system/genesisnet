@@ -9,22 +9,22 @@ const db = knex({
 
 /**
  * Write an activity log record.
- * @param action - type of action, e.g. SEARCH, TX, SCAN
- * @param metadata - additional context to store in JSONB metadata column
- * @param userId - optional id of the acting user
+ * @param type - log type, e.g. SEARCH, TX, SCAN
+ * @param meta - additional context to store in JSONB `meta_json` column
+ * @param message - optional human readable message
  */
 export async function logActivity(
-  action: string,
-  metadata: Record<string, unknown> = {},
-  userId?: string,
+  type: string,
+  meta: Record<string, unknown> = {},
+  message = '',
 ): Promise<void> {
   try {
     await db('activity_logs').insert({
-      user_id: userId ?? null,
-      action,
-      metadata,
+      type,
+      message,
+      meta_json: meta,
     });
   } catch (err) {
-    logger.error({ err, action }, 'failed to write activity log');
+    logger.error({ err, type }, 'failed to write activity log');
   }
 }
