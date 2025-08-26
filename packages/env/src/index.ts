@@ -25,6 +25,8 @@ const schema = z.object({
   DATABASE_URL: z.string().url().default('postgres://postgres:postgres@postgres:5432/genesisnet'),
   REDIS_URL: z.string().url().default('redis://redis:6379/0'),
   JWT_SECRET: z.string().default('change-me'),
+  AGENT_SHARED_SECRET: z.string().optional(),
+  AGENT_IP: z.string().optional(),
   ICP_LEDGER_CANISTER_ID: z.string().optional(),
   ICP_HOST: z.string().url().default('http://localhost:4943'),
 });
