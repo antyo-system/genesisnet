@@ -21,7 +21,6 @@ app.get('/ready', (req, res) => res.json({ ready: true }));
 
 app.use('/agents', agentsRouter);
 app.use('/search', searchRouter);
-app.use('/tx', txRouter);
 
 function verifyJWT(req: Request, res: Response, next: NextFunction) {
   const auth = req.headers.authorization;
@@ -49,7 +48,7 @@ function verifyJWT(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-app.use('/api/tx', verifyJWT);
+app.use('/api/tx', verifyJWT, txRouter);
 app.use('/api/data/search', verifyJWT);
 
 // proxy routes to internal services
@@ -57,7 +56,6 @@ const proxies = [
   { path: '/api/dashboard', target: `http://localhost:${env.METRICS_PORT}`, rewrite: '/dashboard' },
   { path: '/api/data', target: `http://localhost:${env.SEARCH_PORT}` },
   { path: '/api/network', target: `http://localhost:${env.NETWORK_PORT}` },
-  { path: '/api/tx', target: `http://localhost:${env.TX_PORT}` },
   { path: '/api/reputation', target: `http://localhost:${env.REPUTATION_PORT}` },
 ];
 

@@ -4,8 +4,9 @@ import { pool } from '../db.js';
 import { bumpReputation } from '@genesisnet/blockchain-service/src/icp.js';
 import { env } from '@genesisnet/env';
 import { z } from 'zod';
+import type { AgentEvent, Offer } from '@genesisnet/common/src/schemas.js';
 
-const offerSchema = z.object({
+const offerSchema: z.ZodType<Offer> = z.object({
   offer_id: z.string(),
   provider_id: z.string(),
   package_id: z.string(),
@@ -16,7 +17,7 @@ const offerSchema = z.object({
   latency_ms: z.number().optional(),
 });
 
-const agentEventSchema = z.discriminatedUnion('type', [
+const agentEventSchema: z.ZodType<AgentEvent> = z.discriminatedUnion('type', [
   z.object({ type: z.literal('OFFER_NEW'), payload: offerSchema }),
   z.object({
     type: z.literal('TX_PROCESSING'),
@@ -51,8 +52,6 @@ const agentEventSchema = z.discriminatedUnion('type', [
     }),
   }),
 ]);
-
-type AgentEvent = z.infer<typeof agentEventSchema>;
 
 const r = Router();
 
