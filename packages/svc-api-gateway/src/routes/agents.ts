@@ -28,7 +28,10 @@ r.post('/events', async (req, res) => {
       );
       await bumpReputation(provider_id, 1);
       // await logTx({ tx_id, provider_id, amount, data_hash: '...', ts: BigInt(Date.now()) });
-
+      await pool.query(
+        'INSERT INTO activity_logs(type,message,meta_json) VALUES($1,$2,$3)',
+        ['TX', `Transaction ${tx_id} confirmed`, event.payload],
+      );
       io.emit('activity_log', { type: 'TX', payload: event.payload });
       io.emit('metrics_update');
     }
@@ -50,7 +53,12 @@ r.post('/events', async (req, res) => {
          ON CONFLICT (addr) DO UPDATE SET is_online=true, latency_ms=$2, updated_at=NOW()`,
         [node_addr, latency_ms ?? null],
       );
+      await pool.query(
+        'INSERT INTO activity_logs(type,message,meta_json) VALUES($1,$2,$3)',
+        ['PROVIDER', `Provider ${provider_id} online`, event.payload],
+      );
       io.emit('network_update', event.payload);
+      io.emit('activity_log', { type: 'PROVIDER', payload: event.payload });
     }
 
     res.json({ ok: true });

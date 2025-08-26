@@ -6,6 +6,7 @@ import { logger, requestId } from '@genesisnet/common';
 import agentsRouter from './routes/agents.js';
 import searchRouter from './routes/search.js';
 import txRouter from './routes/tx.js';
+import { startMetricsJob } from './metrics.js';
 
 const app = express();
 const log = logger.child({ service: 'api-gateway' });
@@ -55,3 +56,5 @@ app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
 app.listen(env.API_GATEWAY_PORT, () => {
   log.info(`listening on http://localhost:${env.API_GATEWAY_PORT}`);
 });
+
+startMetricsJob();
