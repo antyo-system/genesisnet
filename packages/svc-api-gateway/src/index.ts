@@ -7,6 +7,7 @@ import agentsRouter from './routes/agents.js';
 import searchRouter from './routes/search.js';
 import txRouter from './routes/tx.js';
 import { startMetricsJob } from './metrics.js';
+import crypto from 'node:crypto';
 
 const app = express();
 const log = logger.child({ service: 'api-gateway' });
@@ -21,6 +22,35 @@ app.get('/ready', (req, res) => res.json({ ready: true }));
 app.use('/agents', agentsRouter);
 app.use('/search', searchRouter);
 app.use('/tx', txRouter);
+
+function verifyJWT(req: Request, res: Response, next: NextFunction) {
+  const auth = req.headers.authorization;
+  if (!auth?.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'missing_token' });
+  }
+  const token = auth.substring(7);
+  const parts = token.split('.');
+  if (parts.length !== 3) {
+    return res.status(401).json({ error: 'invalid_token' });
+  }
+  const [header, payload, signature] = parts;
+  try {
+    const data = `${header}.${payload}`;
+    const expected = crypto
+      .createHmac('sha256', env.JWT_SECRET)
+      .update(data)
+      .digest('base64url');
+    if (expected !== signature) {
+      return res.status(401).json({ error: 'invalid_token' });
+    }
+    next();
+  } catch {
+    res.status(401).json({ error: 'invalid_token' });
+  }
+}
+
+app.use('/api/tx', verifyJWT);
+app.use('/api/data/search', verifyJWT);
 
 // proxy routes to internal services
 const proxies = [

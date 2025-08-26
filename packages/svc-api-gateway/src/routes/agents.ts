@@ -1,14 +1,65 @@
 import { Router } from 'express';
-import type { AgentEvent } from '@genesisnet/common/src/schemas.js';
 import { io } from '../ws.js';
 import { pool } from '../db.js';
 import { bumpReputation } from '@genesisnet/blockchain-service/src/icp.js';
+import { env } from '@genesisnet/env';
+import { z } from 'zod';
+
+const offerSchema = z.object({
+  offer_id: z.string(),
+  provider_id: z.string(),
+  package_id: z.string(),
+  name: z.string(),
+  price: z.number(),
+  reputation: z.number(),
+  data_hash: z.string(),
+  latency_ms: z.number().optional(),
+});
+
+const agentEventSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('OFFER_NEW'), payload: offerSchema }),
+  z.object({
+    type: z.literal('TX_SUCCESS'),
+    payload: z.object({
+      tx_id: z.string(),
+      offer_id: z.string(),
+      provider_id: z.string(),
+      amount: z.number(),
+      tx_hash: z.string(),
+    }),
+  }),
+  z.object({
+    type: z.literal('TX_FAILED'),
+    payload: z.object({ offer_id: z.string(), reason: z.string() }),
+  }),
+  z.object({
+    type: z.literal('PROVIDER_ONLINE'),
+    payload: z.object({
+      provider_id: z.string(),
+      node_addr: z.string(),
+      latency_ms: z.number().optional(),
+    }),
+  }),
+]);
+
+type AgentEvent = z.infer<typeof agentEventSchema>;
 
 const r = Router();
 
 // webhook dari semua Agent
 r.post('/events', async (req, res) => {
-  const event = req.body as AgentEvent;
+  const bySecret =
+    env.AGENT_SHARED_SECRET && req.headers['x-agent-secret'] === env.AGENT_SHARED_SECRET;
+  const byIp = env.AGENT_IP && req.ip === env.AGENT_IP;
+  if (!(bySecret || byIp)) {
+    return res.status(403).json({ error: 'forbidden' });
+  }
+
+  const parsed = agentEventSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'invalid_payload' });
+  }
+  const event = parsed.data;
 
   try {
     if (event.type === 'OFFER_NEW') {
