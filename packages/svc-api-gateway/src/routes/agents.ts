@@ -19,6 +19,16 @@ const offerSchema = z.object({
 const agentEventSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('OFFER_NEW'), payload: offerSchema }),
   z.object({
+    type: z.literal('TX_PROCESSING'),
+    payload: z.object({
+      tx_id: z.string(),
+      offer_id: z.string(),
+      provider_id: z.string(),
+      package_id: z.string(),
+      amount: z.number(),
+    }),
+  }),
+  z.object({
     type: z.literal('TX_SUCCESS'),
     payload: z.object({
       tx_id: z.string(),
@@ -63,26 +73,42 @@ r.post('/events', async (req, res) => {
 
   try {
     if (event.type === 'OFFER_NEW') {
-      await pool.query(
-        'INSERT INTO activity_logs(type,message,meta_json) VALUES($1,$2,$3)',
-        ['OFFER', `Offer from provider ${event.payload.provider_id}`, event.payload],
-      );
+      await pool.query('INSERT INTO activity_logs(type,message,meta_json) VALUES($1,$2,$3)', [
+        'OFFER',
+        `Offer from provider ${event.payload.provider_id}`,
+        event.payload,
+      ]);
       io.emit('activity_log', { type: 'OFFER', payload: event.payload });
       io.emit('search_results', [event.payload]);
     }
 
+    if (event.type === 'TX_PROCESSING') {
+      const { tx_id, provider_id, package_id, amount } = event.payload;
+      await pool.query(
+        "UPDATE transactions SET status='PROCESSING', provider_id=$1, package_id=$2, amount=$3 WHERE tx_id=$4",
+        [provider_id, package_id, amount, tx_id],
+      );
+      await pool.query('INSERT INTO activity_logs(type,message,meta_json) VALUES($1,$2,$3)', [
+        'TX',
+        `Transaction ${tx_id} processing`,
+        event.payload,
+      ]);
+      io.emit('activity_log', { type: 'TX', payload: event.payload });
+    }
+
     if (event.type === 'TX_SUCCESS') {
       const { tx_id, offer_id, provider_id, amount, tx_hash } = event.payload;
-      await pool.query(
-        "UPDATE transactions SET status='CONFIRMED', tx_hash=$1 WHERE tx_id=$2",
-        [tx_hash, tx_id],
-      );
+      await pool.query("UPDATE transactions SET status='CONFIRMED', tx_hash=$1 WHERE tx_id=$2", [
+        tx_hash,
+        tx_id,
+      ]);
       await bumpReputation(provider_id, 1);
       // await logTx({ tx_id, provider_id, amount, data_hash: '...', ts: BigInt(Date.now()) });
-      await pool.query(
-        'INSERT INTO activity_logs(type,message,meta_json) VALUES($1,$2,$3)',
-        ['TX', `Transaction ${tx_id} confirmed`, event.payload],
-      );
+      await pool.query('INSERT INTO activity_logs(type,message,meta_json) VALUES($1,$2,$3)', [
+        'TX',
+        `Transaction ${tx_id} confirmed`,
+        event.payload,
+      ]);
       io.emit('activity_log', { type: 'TX', payload: event.payload });
       io.emit('metrics_update');
     }
@@ -104,10 +130,11 @@ r.post('/events', async (req, res) => {
          ON CONFLICT (addr) DO UPDATE SET is_online=true, latency_ms=$2, updated_at=NOW()`,
         [node_addr, latency_ms ?? null],
       );
-      await pool.query(
-        'INSERT INTO activity_logs(type,message,meta_json) VALUES($1,$2,$3)',
-        ['PROVIDER', `Provider ${provider_id} online`, event.payload],
-      );
+      await pool.query('INSERT INTO activity_logs(type,message,meta_json) VALUES($1,$2,$3)', [
+        'PROVIDER',
+        `Provider ${provider_id} online`,
+        event.payload,
+      ]);
       io.emit('network_update', event.payload);
       io.emit('activity_log', { type: 'PROVIDER', payload: event.payload });
     }

@@ -157,6 +157,13 @@ This **three-panel cockpit design** ensures clarity and impact:
 4. **Reputation Agent** monitors and updates provider scores on-chain.
 5. **Dashboard** visualizes the entire workflow (query → negotiation → transaction).
 
+### Transaction States
+
+Transactions move through a simple state machine:
+`PENDING` → `PROCESSING` → `CONFIRMED`/`FAILED`. Each record stores the
+`tx_hash`, `amount`, `provider_id`, `package_id`, and `user_id` so the
+status of any payment can be monitored and retried if necessary.
+
 ---
 
 ## 🧩 Fetch.ai Agents
