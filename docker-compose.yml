@@ -117,6 +117,22 @@ services:
     ports:
       - "${NETWORK_PORT:-4004}:4004"
 
+  scheduler:
+    image: node:20-alpine
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - /workspace/node_modules
+      - /workspace/packages/svc-scheduler/node_modules
+    env_file:
+      - .env
+    command: sh -c "npm i && npm run -w @genesisnet/svc-scheduler dev"
+    depends_on:
+      - network
+      - metrics
+      - postgres
+      - redis
+
 volumes:
   pgdata:
   redisdata:

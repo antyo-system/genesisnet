@@ -11,6 +11,8 @@ const schema = z.object({
   WS_PORT: z.coerce.number().default(3002),
   NETWORK_PORT: z.coerce.number().default(4004),
   REPUTATION_PORT: z.coerce.number().default(4005),
+  SCHEDULER_SCAN_INTERVAL_MS: z.coerce.number().default(30000),
+  SCHEDULER_METRICS_INTERVAL_MS: z.coerce.number().default(60000),
   NETWORK_DISCOVERY_URL: z
     .string()
     .url()
