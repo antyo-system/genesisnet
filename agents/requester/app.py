@@ -31,7 +31,19 @@ def search(body: SearchRequest):
 
 @app.post("/purchase")
 def purchase(payload: dict):
-    # TODO: kirim purchase via uAgents; dummy sukses:
+    # TODO: kirim purchase via uAgents; contoh alur lengkap:
+    processing_event = {
+        "type": "TX_PROCESSING",
+        "payload": {
+            "tx_id": payload["tx_id"],
+            "offer_id": payload["offer_id"],
+            "provider_id": "prov-1",
+            "package_id": "pkg-1",
+            "amount": 3.1,
+        },
+    }
+    requests.post(f"{GATEWAY}/agents/events", json=processing_event)
+
     tx_event = {
         "type": "TX_SUCCESS",
         "payload": {
@@ -39,8 +51,8 @@ def purchase(payload: dict):
             "offer_id": payload["offer_id"],
             "provider_id": "prov-1",
             "amount": 3.1,
-            "tx_hash": "0xDUMMY"
-        }
+            "tx_hash": "0xDUMMY",
+        },
     }
     requests.post(f"{GATEWAY}/agents/events", json=tx_event)
     return {"status": "ok"}
