@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GenesisNet UI</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="logo">GenesisNet v2.0</div>
+        <nav class="tabs">
+          <button class="tab active">Network</button>
+          <button class="tab">Analytics</button>
+        </nav>
+        <div class="status">🟡 Searching</div>
+      </header>
+      <div class="body">
+        <aside class="control-panel">
+          <h2>Network Control</h2>
+          <div class="stat-block">
+            <div class="label">Active Nodes</div>
+            <div class="value">42</div>
+          </div>
+          <div class="stat-block">
+            <div class="label">Demo Mode</div>
+            <div class="value">⚙️</div>
+          </div>
+          <h3>Quick Presets</h3>
+          <ul class="presets">
+            <li>Search</li>
+            <li>Scan</li>
+            <li>Reset</li>
+          </ul>
+          <h3>Search Parameters</h3>
+          <div class="params">[ + ] [ - ]</div>
+          <h3>Activity Log</h3>
+          <div class="log">
+            <p>Log output will appear here...</p>
+          </div>
+        </aside>
+        <main class="topology">
+          <svg class="links" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <line x1="50" y1="50" x2="20" y2="20" />
+            <line x1="50" y1="50" x2="80" y2="20" />
+            <line x1="50" y1="50" x2="20" y2="80" />
+            <line x1="50" y1="50" x2="80" y2="80" />
+          </svg>
+          <div class="node core" style="left:50%;top:50%;">GenesisNet Core</div>
+          <div class="node" style="left:20%;top:20%;">Data Providers</div>
+          <div class="node" style="left:80%;top:20%;">Start Negotiation</div>
+          <div class="node" style="left:20%;top:80%;">Authentication</div>
+          <div class="node" style="left:80%;top:80%;">Smart Contracts</div>
+        </main>
+        <aside class="system-overview">
+          <h2>System Overview</h2>
+          <h3>Performance</h3>
+          <div class="stat-block">
+            <div class="label">Tx/sec</div>
+            <div class="value">42</div>
+          </div>
+          <h3>Ledger</h3>
+          <p>Last Block: #12345</p>
+          <h3>Connections</h3>
+          <p>Success Rate: 93%</p>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>
