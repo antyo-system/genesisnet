@@ -1,5 +1,22 @@
 version: "3.9"
 services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: genesisnet
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+
   api-gateway:
     image: node:20-alpine
     working_dir: /workspace
@@ -10,5 +27,96 @@ services:
     env_file:
       - .env
     command: sh -c "npm i && npm run -w @genesisnet/svc-api-gateway dev"
+    depends_on:
+      - search
+      - tx
+      - blockchain
+      - metrics
+      - ws
+      - network
+      - postgres
+      - redis
     ports:
       - "${API_GATEWAY_PORT:-3000}:3000"
+
+  search:
+    image: node:20-alpine
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - /workspace/node_modules
+      - /workspace/packages/svc-search/node_modules
+    env_file:
+      - .env
+    command: sh -c "npm i && npm run -w @genesisnet/svc-search dev"
+    ports:
+      - "${SEARCH_PORT:-3001}:3001"
+
+  metrics:
+    image: node:20-alpine
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - /workspace/node_modules
+      - /workspace/packages/svc-metrics/node_modules
+    env_file:
+      - .env
+    command: sh -c "npm i && npm run -w @genesisnet/svc-metrics dev"
+    ports:
+      - "${METRICS_PORT:-9100}:9100"
+
+  tx:
+    image: node:20-alpine
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - /workspace/node_modules
+      - /workspace/packages/svc-tx/node_modules
+    env_file:
+      - .env
+    command: sh -c "npm i && npm run -w @genesisnet/svc-tx dev"
+    ports:
+      - "${TX_PORT:-4002}:4002"
+
+  blockchain:
+    image: node:20-alpine
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - /workspace/node_modules
+      - /workspace/packages/svc-blockchain/node_modules
+    env_file:
+      - .env
+    command: sh -c "npm i && npm run -w @genesisnet/svc-blockchain dev"
+    ports:
+      - "${BLOCKCHAIN_PORT:-4003}:4003"
+
+  ws:
+    image: node:20-alpine
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - /workspace/node_modules
+      - /workspace/packages/svc-ws/node_modules
+    env_file:
+      - .env
+    command: sh -c "npm i && npm run -w @genesisnet/svc-ws dev"
+    ports:
+      - "${WS_PORT:-3002}:3002"
+
+  network:
+    image: node:20-alpine
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - /workspace/node_modules
+      - /workspace/packages/svc-network/node_modules
+    env_file:
+      - .env
+    command: sh -c "npm i && npm run -w @genesisnet/svc-network dev"
+    ports:
+      - "${NETWORK_PORT:-4004}:4004"
+
+volumes:
+  pgdata:
+  redisdata:

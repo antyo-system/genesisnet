@@ -1,20 +1,18 @@
-import 'dotenv/config'; // load .env
 import express from 'express';
+import { env } from '@genesisnet/env';
+import { logger, requestId } from '@genesisnet/common';
 
 const app = express();
-const PORT = Number(process.env.API_GATEWAY_PORT || 3000);
+const log = logger.child({ service: 'api-gateway' });
 
-// basic middlewares
+app.use(requestId(log));
 app.use(express.json());
 
-// health & ready checks
-app.get('/health', (_req, res) => res.json({ ok: true, service: 'api-gateway' }));
-app.get('/ready', (_req, res) => res.json({ ready: true }));
+app.get('/health', (req, res) => res.json({ ok: true, service: 'api-gateway' }));
+app.get('/ready', (req, res) => res.json({ ready: true }));
 
-// 404 fallback
-app.use((_req, res) => res.status(404).json({ error: 'Not Found' }));
+app.use((req, res) => res.status(404).json({ error: 'Not Found' }));
 
-// start
-app.listen(PORT, () => {
-  console.log(`[api-gateway] listening on http://localhost:${PORT}`);
+app.listen(env.API_GATEWAY_PORT, () => {
+  log.info(`listening on http://localhost:${env.API_GATEWAY_PORT}`);
 });
