@@ -16,20 +16,20 @@ app.get('/ready', (req, res) => res.json({ ready: true }));
 
 // proxy routes to internal services
 const proxies = [
-  { path: '/api/dashboard', target: `http://localhost:${env.METRICS_PORT}` },
+  { path: '/api/dashboard', target: `http://localhost:${env.METRICS_PORT}`, rewrite: '/dashboard' },
   { path: '/api/data', target: `http://localhost:${env.SEARCH_PORT}` },
   { path: '/api/network', target: `http://localhost:${env.NETWORK_PORT}` },
   { path: '/api/tx', target: `http://localhost:${env.TX_PORT}` },
   { path: '/api/reputation', target: `http://localhost:${env.REPUTATION_PORT}` },
 ];
 
-proxies.forEach(({ path, target }) => {
+proxies.forEach(({ path, target, rewrite }) => {
   app.use(
     path,
     createProxyMiddleware({
       target,
       changeOrigin: true,
-      pathRewrite: { [`^${path}`]: '' },
+      pathRewrite: { [`^${path}`]: rewrite ?? '' },
       logLevel: 'warn',
     }),
   );

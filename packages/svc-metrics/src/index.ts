@@ -26,7 +26,7 @@ app.get('/metrics', async (req, res) => {
   res.end(await register.metrics());
 });
 
-async function publishMetrics() {
+async function getMetrics() {
   const [{ count: txCountRaw }] = await db('transactions')
     .where('created_at', '>=', db.raw("now() - interval '1 minute'"))
     .count<{ count: string }>("* as count");
@@ -42,13 +42,36 @@ async function publishMetrics() {
     .where({ status: 'paid' })
     .count<{ paid: string }>("* as paid");
 
-  const metrics = {
+  return {
     txPerMin: Number(txCountRaw ?? 0),
     avgPrice: Number(avgPriceRaw ?? 0),
     nodesOnline: Number(nodesOnlineRaw ?? 0),
     offerRate: totalRaw ? Number(paidRaw) / Number(totalRaw) : 0,
   };
+}
 
+app.get('/dashboard/metrics', async (req, res) => {
+  try {
+    const metrics = await getMetrics();
+    res.json(metrics);
+  } catch (err) {
+    log.error({ err }, 'dashboard metrics failed');
+    res.status(500).json({ error: 'failed to fetch metrics' });
+  }
+});
+
+app.get('/dashboard/logs', async (req, res) => {
+  try {
+    const logs = await db('activity_logs').orderBy('created_at', 'desc').limit(20);
+    res.json({ logs });
+  } catch (err) {
+    log.error({ err }, 'dashboard logs failed');
+    res.status(500).json({ error: 'failed to fetch logs' });
+  }
+});
+
+async function publishMetrics() {
+  const metrics = await getMetrics();
   await redis.publish('metrics_update', JSON.stringify(metrics));
 }
 
