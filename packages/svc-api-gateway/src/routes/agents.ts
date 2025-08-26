@@ -57,10 +57,10 @@ const r = Router();
 
 // webhook dari semua Agent
 r.post('/events', async (req, res) => {
-  const bySecret =
-    env.AGENT_SHARED_SECRET && req.headers['x-agent-secret'] === env.AGENT_SHARED_SECRET;
-  const byIp = env.AGENT_IP && req.ip === env.AGENT_IP;
-  if (!(bySecret || byIp)) {
+  if (
+    env.AGENT_SHARED_SECRET &&
+    req.headers['x-agent-secret'] !== env.AGENT_SHARED_SECRET
+  ) {
     return res.status(403).json({ error: 'forbidden' });
   }
 
