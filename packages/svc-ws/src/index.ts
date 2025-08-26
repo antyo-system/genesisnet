@@ -1,13 +1,19 @@
 import express from 'express';
-import http, { IncomingMessage } from 'node:http';
-import { WebSocketServer, WebSocket, RawData } from 'ws';
+import http from 'node:http';
+import { Server } from 'socket.io';
+import { createClient } from 'redis';
+import { createAdapter } from '@socket.io/redis-adapter';
 import { env } from '@genesisnet/env';
 import { logger, requestId } from '@genesisnet/common';
 
+const log = logger.child({ service: 'ws' });
 const app = express();
 const server = http.createServer(app);
-const wss = new WebSocketServer({ server });
-const log = logger.child({ service: 'ws' });
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+  },
+});
 
 app.use(requestId(log));
 
@@ -15,38 +21,45 @@ app.get('/health', (req, res) => {
   res.json({ ok: true, service: 'ws' });
 });
 
-wss.on('connection', (socket: WebSocket, req: IncomingMessage) => {
-  const id = Math.random().toString(36).slice(2, 8);
-  log.info(`client connected #${id} from ${req.socket.remoteAddress}`);
-  socket.send(JSON.stringify({ type: 'welcome', id, msg: 'connected' }));
-
-  const interval = setInterval(() => {
-    if (socket.readyState === WebSocket.OPEN) socket.ping();
-  }, 15_000);
-
-  socket.on('pong', () => {});
-
-  socket.on('message', (buf: RawData) => {
-    const text = buf.toString();
-    if (text.trim().toLowerCase() === 'ping') socket.send('pong');
-    else socket.send(JSON.stringify({ type: 'echo', data: text }));
-  });
-
-  socket.on('close', () => {
-    clearInterval(interval);
-    log.info(`client disconnected #${id}`);
-  });
-
-  socket.on('error', (err: Error) => {
-    log.error({ err }, 'ws error');
+io.on('connection', (socket) => {
+  log.info({ id: socket.id }, 'client connected');
+  socket.on('disconnect', () => {
+    log.info({ id: socket.id }, 'client disconnected');
   });
 });
 
-app.get('/', (req, res) => {
-  res.type('text').send('svc-ws running. HTTP: /health, WS: ws://localhost:3002');
+function forward(channel: string) {
+  return (message: string) => {
+    let data: unknown = message;
+    try {
+      data = JSON.parse(message);
+    } catch {}
+    io.emit(channel, data);
+  };
+}
+
+const pub = createClient({ url: env.REDIS_URL });
+const sub = pub.duplicate();
+
+async function start() {
+  await Promise.all([pub.connect(), sub.connect()]);
+  io.adapter(createAdapter(pub, sub));
+
+  await Promise.all([
+    sub.subscribe('metrics_update', forward('metrics_update')),
+    sub.subscribe('activity_log', forward('activity_log')),
+    sub.subscribe('network_update', forward('network_update')),
+    sub.subscribe('search_results', forward('search_results')),
+  ]);
+
+  const PORT = env.WS_PORT;
+  server.listen(PORT, () => {
+    log.info(`listening ws://localhost:${PORT} (health: /health)`);
+  });
+}
+
+start().catch((err) => {
+  log.error({ err }, 'failed to start ws service');
+  process.exit(1);
 });
 
-const PORT = env.WS_PORT;
-server.listen(PORT, () => {
-  log.info(`listening ws://localhost:${PORT} (health: /health)`);
-});
