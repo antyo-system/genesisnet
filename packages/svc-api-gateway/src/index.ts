@@ -13,7 +13,7 @@ const app = express();
 const log = logger.child({ service: 'api-gateway' });
 
 app.use(requestId(log));
-app.use(cors());
+app.use(cors({ origin: env.AGENTVERSE_ORIGIN ?? '*' }));
 app.use(express.json());
 
 app.get('/health', (req, res) => res.json({ ok: true, service: 'api-gateway' }));
