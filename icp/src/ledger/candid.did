@@ -1,31 +1,23 @@
 // Candid interface untuk canister ledger GenesisNet
-type TxInput = record {
-  provider_id : text;
-  requester_id : text;
-  price       : nat64;
-  data_hash   : text;
-};
 
-type Transaction = record {
-  id          : nat;
-  provider_id : text;
-  requester_id: text;
-  price       : nat64;
-  data_hash   : text;
-  timestamp   : int;
+// Input transaksi yang dicatat
+// tx_id: ID transaksi dari sistem eksternal
+// provider_id: penyedia layanan yang terlibat
+// amount: jumlah pembayaran (dalam e8s ICP)
+// ts: timestamp (epoch seconds atau miliseconds)
+// data_hash: hash dari data yang dipertukarkan
+
+type TxInput = record {
+  tx_id      : text;
+  provider_id: text;
+  amount     : nat64;
+  ts         : int;
+  data_hash  : text;
 };
 
 service : {
-  // ==== Transaksi & Log ====
-  log_transaction : (TxInput) -> (nat);
-  get_transactions: () -> (vec Transaction) query;
-  get_logs_since  : (nat) -> (vec Transaction) query;
-
-  // ==== Reputasi ====
-  get_reputation  : (text) -> (nat) query;
-  update_reputation : (text, int) -> (nat);   // delta (+/-)
-  set_reputation  : (text, nat) -> (nat);
-
-  // ==== Util ====
-  reset_all : () -> ();   // dev only (local)
-}
+  // ==== Transaksi & Reputasi ====
+  log_transaction   : (TxInput) -> (nat);
+  get_reputation    : (text) -> (nat) query;
+  update_reputation : (text, int) -> (nat); // delta (+/-)
+};
