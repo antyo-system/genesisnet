@@ -9,7 +9,12 @@
     "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@genesisnet/env": ["../env/src/index.ts"],
+      "@genesisnet/common": ["../common/src/index.ts"]
+    }
   },
   "include": ["src"]
 }
