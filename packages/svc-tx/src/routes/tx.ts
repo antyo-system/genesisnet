@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { env } from '@genesisnet/env';
 import { store, TxRecord } from '../lib/store.js';
 import { logActivity, logger } from '@genesisnet/common';
+import { logTransaction } from '../lib/icp.js';
 
 const log = logger.child({ route: 'tx' });
 
@@ -67,6 +68,11 @@ router.post('/:id/mark-paid', async (req, res) => {
   await logActivity('TX_MARK_PAID', { id: tx.id }).catch((err) =>
     log.error({ err }, 'activity log failed'),
   );
+  try {
+    await logTransaction(tx.id, BigInt(tx.amount));
+  } catch (err) {
+    log.error({ err }, 'icp log_transaction failed');
+  }
   return res.json({ ok: true, tx });
 });
 

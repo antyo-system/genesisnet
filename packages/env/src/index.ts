@@ -11,6 +11,10 @@ const schema = z.object({
   WS_PORT: z.coerce.number().default(3002),
   NETWORK_PORT: z.coerce.number().default(4004),
   REPUTATION_PORT: z.coerce.number().default(4005),
+  REQUESTER_AGENT_URL: z
+    .string()
+    .url()
+    .default('http://localhost:8001'),
   SCHEDULER_SCAN_INTERVAL_MS: z.coerce.number().default(30000),
   SCHEDULER_METRICS_INTERVAL_MS: z.coerce.number().default(60000),
   NETWORK_DISCOVERY_URL: z
@@ -23,6 +27,7 @@ const schema = z.object({
   JWT_SECRET: z.string().default('change-me'),
   ICP_LEDGER_CANISTER_ID: z.string().optional(),
   ICP_REPUTATION_CANISTER_ID: z.string().optional(),
+  ICP_HOST: z.string().url().default('http://localhost:4943'),
 });
 
 export const env = schema.parse(process.env);
