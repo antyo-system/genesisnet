@@ -1,7 +1,7 @@
 # GenesisNet – Autonomous Network for the AI Data Economy
 
 ![tag:innovationlab](https://img.shields.io/badge/innovationlab-3D8BD3)
-
+https://youtu.be/4rFroJGjpT0
 ## 🌍 Overview
 
 GenesisNet is an **autonomous data economy network** built on **Fetch.ai agents** and **Internet Computer (ICP)** canisters.  
