@@ -3,6 +3,9 @@ import { z } from 'zod';
 import { randomUUID } from 'node:crypto';
 import { env } from '@genesisnet/env';
 import { store, TxRecord } from '../lib/store.js';
+import { logActivity, logger } from '@genesisnet/common';
+
+const log = logger.child({ route: 'tx' });
 
 const router = Router();
 
@@ -14,7 +17,7 @@ const initiateSchema = z.object({
   memo: z.string().optional(),
 });
 
-router.post('/initiate', (req, res) => {
+router.post('/initiate', async (req, res) => {
   const parsed = initiateSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ ok: false, error: parsed.error.flatten() });
@@ -32,13 +35,16 @@ router.post('/initiate', (req, res) => {
   };
 
   store.create(rec);
+  await logActivity('TX_INITIATE', { tx: rec }).catch((err) => {
+    log.error({ err }, 'activity log failed');
+  });
   return res.json({ ok: true, tx: rec });
 });
 
-router.get('/:id/status', (req, res) => {
+router.get('/:id/status', async (req, res) => {
   const tx = store.get(req.params.id);
   if (!tx) return res.status(404).json({ ok: false, error: 'TX not found' });
-  return res.json({
+  const resp = {
     ok: true,
     tx: {
       id: tx.id,
@@ -48,18 +54,28 @@ router.get('/:id/status', (req, res) => {
       buyer_id: tx.buyer_id,
       seller_id: tx.seller_id,
     },
-  });
+  };
+  await logActivity('TX_STATUS', { id: tx.id, status: tx.status }).catch((err) =>
+    log.error({ err }, 'activity log failed'),
+  );
+  return res.json(resp);
 });
 
-router.post('/:id/mark-paid', (req, res) => {
+router.post('/:id/mark-paid', async (req, res) => {
   const tx = store.update(req.params.id, { status: 'paid' });
   if (!tx) return res.status(404).json({ ok: false, error: 'TX not found' });
+  await logActivity('TX_MARK_PAID', { id: tx.id }).catch((err) =>
+    log.error({ err }, 'activity log failed'),
+  );
   return res.json({ ok: true, tx });
 });
 
-router.post('/:id/mark-failed', (req, res) => {
+router.post('/:id/mark-failed', async (req, res) => {
   const tx = store.update(req.params.id, { status: 'failed' });
   if (!tx) return res.status(404).json({ ok: false, error: 'TX not found' });
+  await logActivity('TX_MARK_FAILED', { id: tx.id }).catch((err) =>
+    log.error({ err }, 'activity log failed'),
+  );
   return res.json({ ok: true, tx });
 });
 

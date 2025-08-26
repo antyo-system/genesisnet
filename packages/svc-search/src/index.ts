@@ -1,7 +1,7 @@
 import express from 'express';
 import knex from 'knex';
 import { env } from '@genesisnet/env';
-import { logger, requestId } from '@genesisnet/common';
+import { logger, requestId, logActivity } from '@genesisnet/common';
 import {
   providers,
   dataPackages,
@@ -36,7 +36,7 @@ function searchItems(q: string) {
   return haystack.filter((item) => Object.values(item).join(' ').toLowerCase().includes(q));
 }
 
-app.get('/search', (req, res) => {
+app.get('/search', async (req, res) => {
   const q = String(req.query.q ?? '')
     .trim()
     .toLowerCase();
@@ -44,6 +44,9 @@ app.get('/search', (req, res) => {
     return res.json({ query: q, count: 0, results: [] });
   }
   const results = searchItems(q);
+  await logActivity('SEARCH', { query: q, count: results.length }).catch((err) =>
+    log.error({ err }, 'activity log failed'),
+  );
   res.json({ query: q, count: results.length, results });
 });
 
@@ -78,6 +81,9 @@ app.post('/search', async (req, res) => {
     }
 
     const results = await query;
+    await logActivity('SEARCH', { body: req.body, count: results.length }).catch((err) =>
+      log.error({ err }, 'activity log failed'),
+    );
     res.json({ count: results.length, results });
   } catch (err) {
     log.error({ err }, 'search failed');
