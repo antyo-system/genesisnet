@@ -11,6 +11,10 @@ const schema = z.object({
   WS_PORT: z.coerce.number().default(3002),
   NETWORK_PORT: z.coerce.number().default(4004),
   REPUTATION_PORT: z.coerce.number().default(4005),
+  NETWORK_DISCOVERY_URL: z
+    .string()
+    .url()
+    .default('http://localhost:4943/nodes'),
   TX_PREFIX: z.string().default('TX'),
   DATABASE_URL: z.string().url().default('postgres://postgres:postgres@postgres:5432/genesisnet'),
   REDIS_URL: z.string().url().default('redis://redis:6379/0'),
