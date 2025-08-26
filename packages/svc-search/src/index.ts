@@ -1,4 +1,5 @@
 import express from 'express';
+import knex from 'knex';
 import { env } from '@genesisnet/env';
 import { logger, requestId } from '@genesisnet/common';
 import {
@@ -13,6 +14,11 @@ import {
 const app = express();
 const log = logger.child({ service: 'search' });
 const PORT = env.SEARCH_PORT;
+
+const db = knex({
+  client: 'pg',
+  connection: env.DATABASE_URL,
+});
 
 app.use(requestId(log));
 app.use(express.json());
@@ -39,6 +45,44 @@ app.get('/search', (req, res) => {
   }
   const results = searchItems(q);
   res.json({ query: q, count: results.length, results });
+});
+
+app.post('/search', async (req, res) => {
+  try {
+    const { q, tags, max_price, provider_id } = req.body as {
+      q?: string;
+      tags?: string[];
+      max_price?: number;
+      provider_id?: string;
+    };
+
+    let query = db('data_packages').select('*');
+
+    if (q && q.trim()) {
+      query = query.whereRaw(
+        "to_tsvector('english', title || ' ' || coalesce(description, '')) @@ plainto_tsquery(?)",
+        [q.trim()],
+      );
+    }
+
+    if (Array.isArray(tags) && tags.length) {
+      query = query.whereRaw('tags @> ?', [JSON.stringify(tags)]);
+    }
+
+    if (typeof max_price === 'number') {
+      query = query.where('price', '<=', max_price);
+    }
+
+    if (provider_id) {
+      query = query.where('provider_id', provider_id);
+    }
+
+    const results = await query;
+    res.json({ count: results.length, results });
+  } catch (err) {
+    log.error({ err }, 'search failed');
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 // Provider CRUD
