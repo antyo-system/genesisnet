@@ -3,6 +3,9 @@ import cors from 'cors';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { env } from '@genesisnet/env';
 import { logger, requestId } from '@genesisnet/common';
+import agentsRouter from './routes/agents.js';
+import searchRouter from './routes/search.js';
+import txRouter from './routes/tx.js';
 
 const app = express();
 const log = logger.child({ service: 'api-gateway' });
@@ -14,25 +17,9 @@ app.use(express.json());
 app.get('/health', (req, res) => res.json({ ok: true, service: 'api-gateway' }));
 app.get('/ready', (req, res) => res.json({ ready: true }));
 
-app.post('/agent/requester/search', async (req, res) => {
-  try {
-    const response = await fetch(`${env.REQUESTER_AGENT_URL}/agent/requester/search`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req.body),
-    });
-    const data = await response.json().catch(() => undefined);
-    res.status(response.status).json(data);
-  } catch (err) {
-    log.error({ err }, 'failed to trigger requester agent');
-    res.status(500).json({ error: 'Requester agent request failed' });
-  }
-});
-
-app.post('/agents/events', (req, res) => {
-  log.info({ event: req.body }, 'agent event received');
-  res.json({ ok: true });
-});
+app.use('/agents', agentsRouter);
+app.use('/search', searchRouter);
+app.use('/tx', txRouter);
 
 // proxy routes to internal services
 const proxies = [

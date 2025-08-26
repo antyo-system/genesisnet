@@ -16,7 +16,11 @@
     "express": "^4.19.2",
     "@genesisnet/common": "^0.1.0",
     "cors": "^2.8.5",
-    "http-proxy-middleware": "^2.0.6"
+    "http-proxy-middleware": "^2.0.6",
+    "axios": "^1.6.8",
+    "pg": "^8.11.5",
+    "redis": "^4.6.12",
+    "@genesisnet/blockchain-service": "^0.1.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.23",
