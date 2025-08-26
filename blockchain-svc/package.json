@@ -1,9 +1,0 @@
-{
-  "name": "@genesisnet/blockchain-svc",
-  "version": "0.0.1",
-  "private": true,
-  "type": "module",
-  "dependencies": {
-    "@genesisnet/env": "0.0.1"
-  }
-}

@@ -14,7 +14,8 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "pino": "^9.3.1"
   },
   "devDependencies": {
     "typescript": "^5.4.5",

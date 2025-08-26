@@ -10,10 +10,11 @@
     "test": "echo \"No tests yet\""
   },
   "dependencies": {
-    "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "ws": "^8.18.0",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "@genesisnet/env": "^0.1.0",
+    "@genesisnet/common": "^0.1.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.23",
