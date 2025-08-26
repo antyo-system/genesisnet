@@ -1,19 +1,23 @@
-import express from 'express';
+// svc-tx/src/index.ts
+
 import dotenv from 'dotenv';
+dotenv.config(); // fallback kalau kamu tidak pakai --env-file=.env
 
-dotenv.config(); // fallback jika --env-file tidak dipakai
-
-// Validasi env (opsional ringan)
-const PORT = Number(process.env.PORT ?? '4002');
-if (Number.isNaN(PORT)) {
-  console.error('[svc-tx] Invalid PORT in .env');
-  process.exit(1);
-}
-
+import express from 'express';
+import { z } from 'zod';
+import { logger, loadEnv } from '@genesisnet/common';
 import txRouter from './routes/tx.js';
 
-const app = express();
+// set dulu supaya logger kasih label service
+process.env.SERVICE_NAME = 'svc-tx';
 
+// parse & validasi ENV via common
+const env = loadEnv({
+  PORT: z.coerce.number().default(4002),
+  TX_PREFIX: z.string().default('TX'),
+});
+
+const app = express();
 app.use(express.json());
 
 app.get('/health', (_req, res) => {
@@ -22,6 +26,6 @@ app.get('/health', (_req, res) => {
 
 app.use('/tx', txRouter);
 
-app.listen(PORT, () => {
-  console.log(`[svc-tx] listening on http://localhost:${PORT}`);
+app.listen(env.PORT, () => {
+  logger.info(`listening on http://localhost:${env.PORT}`);
 });
