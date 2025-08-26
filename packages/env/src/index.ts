@@ -26,7 +26,6 @@ const schema = z.object({
   REDIS_URL: z.string().url().default('redis://redis:6379/0'),
   JWT_SECRET: z.string().default('change-me'),
   ICP_LEDGER_CANISTER_ID: z.string().optional(),
-  ICP_REPUTATION_CANISTER_ID: z.string().optional(),
   ICP_HOST: z.string().url().default('http://localhost:4943'),
 });
 

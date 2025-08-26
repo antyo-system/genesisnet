@@ -69,7 +69,13 @@ router.post('/:id/mark-paid', async (req, res) => {
     log.error({ err }, 'activity log failed'),
   );
   try {
-    await logTransaction(tx.id, BigInt(tx.amount));
+    await logTransaction(
+      tx.id,
+      tx.seller_id,
+      BigInt(tx.amount),
+      BigInt(Date.now()),
+      tx.memo || '',
+    );
   } catch (err) {
     log.error({ err }, 'icp log_transaction failed');
   }
